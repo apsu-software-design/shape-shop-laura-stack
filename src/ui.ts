@@ -3,10 +3,17 @@
 
 import readlineSync = require('readline-sync'); //for easier repeated prompts
 import {Product} from './products';
+import {ShapeModel} from './ShapeModel'; 
+import {ProductView} from './productView'
+import {ShoppingCartView} from './shoppingCartView'
+import {PriceView} from './priceView';
+import {RemovalView} from './removalView';
 
 // Hey look. It's a global variable. This is totally cool, right?
-let shopping_cart: Product[] = [];
-let quantity_cart: number[] = [];
+//let shopping_cart: Product[] = [];
+//let quantity_cart: number[] = [];
+
+let shapeMod:ShapeModel = new ShapeModel; 
 
 /**
  * Function to run the UI
@@ -15,7 +22,7 @@ export function start() {
   showMainMenu();
 }
 
-/**
+/** UNEDITED/ORIGINAL FUNCTION
  * The main menu. Will show until the user exits
  */
 function showMainMenu() {
@@ -43,24 +50,29 @@ function showMainMenu() {
   }
 }
 
+//UNCHANGED FUNCTION
 function addItemToCart() {
     letUserSelectItem();
     letUserSelectQuantity();
 }
 
 function letUserSelectItem() {
-    console.log(`Here you can select your shape. Pick an option:
+
+    let product: ProductView = new ProductView(); 
+    console.log(product.getView());
+    /*console.log(`Here you can select your shape. Pick an option:
+    
   1. Buy a Triangle!
   2. Buy a Square!
   3. Buy a Pentagon!
-  4. Go back. Don't buy anything.`);
+  4. Go back. Don't buy anything.`);*/
 
     let response = readlineSync.question('> ')
 
     switch(response) { //handle each response
-      case '1': shopping_cart.push(new Product("Triangle", 3.5, "It's got three sides!")); break;
-      case '2': shopping_cart.push(new Product("Square", 4.5, "It's got four sides!")); break;
-      case '3': shopping_cart.push(new Product("Pentagon", 5.5, "It's got five sides!")); break;
+      case '1': shapeMod.addProduct(new Product("Triangle", 3.5, "It's got three sides!")); break;
+      case '2': shapeMod.addProduct(new Product("Square", 4.5, "It's got four sides!")); break;
+      case '3': shapeMod.addProduct(new Product("Pentagon", 5.5, "It's got five sides!")); break;
       default: console.log('Invalid option!');
     }
     console.log(''); //extra empty line for revisiting
@@ -71,7 +83,7 @@ function letUserSelectQuantity() {
   `);
 
     let response = readlineSync.question('> ')
-    quantity_cart.push(parseInt(response));
+    shapeMod.setQuantity((parseInt(response)));
     console.log(''); //extra empty line for revisiting
 }
 
@@ -79,33 +91,32 @@ function removeItemFromCart() {
     console.log(`Select an item to be removed from the cart.
   `);
 
-    for (let i = 0; i < shopping_cart.length; i++) {
+  viewRemovedItems(); 
+
+    /*for (let i = 0; i < shopping_cart.length; i++) {
         console.log(i+": "+shopping_cart[i].getName());
-    }
+    }*/
 
     let response = readlineSync.question('> ')
     let toRemove = parseInt(response);
 
-    shopping_cart.splice(toRemove, 1);
-    quantity_cart.splice(toRemove, 1);
+    shapeMod.removeProduct(toRemove);
+    //quantity_cart.splice(toRemove, 1);
 
     console.log(''); //extra empty line for revisiting
 }
 
+function viewRemovedItems(){
+    let itemsInCart: RemovalView = new RemovalView(shapeMod); 
+    console.log(itemsInCart.getView().toString()); 
+}
+
 function viewItemsInCart() {
-    for (let i = 0; i < shopping_cart.length; i++) {
-        console.log("");
-        console.log("       Name: "+shopping_cart[i].getName());
-        console.log("      Price: "+shopping_cart[i].getPrice());
-        console.log("Description: "+shopping_cart[i].getDescription());
-        console.log("   Quantity: "+quantity_cart[i]);
-    }
+    let itemsInCart: ShoppingCartView = new ShoppingCartView(shapeMod); 
+    console.log(itemsInCart.getView().toString());
 }
 
 function viewCartTotal() {
-    let total: number = 0;
-    for (let i = 0; i < shopping_cart.length; i++) {
-        total += shopping_cart[i].getPrice() * quantity_cart[i];
-    }
-    console.log("Shopping Cart Total: "+total);
+    let itemsInCart: PriceView = new PriceView(shapeMod);
+    console.log(itemsInCart.getView());
 }
