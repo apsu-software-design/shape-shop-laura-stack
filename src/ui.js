@@ -1,13 +1,19 @@
 "use strict";
 //User Interface for The Shopping Cart 
 //@author James Church
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.start = void 0;
 var readlineSync = require("readline-sync"); //for easier repeated prompts
 var products_1 = require("./products");
+var ShapeModel_1 = require("./ShapeModel");
+var productView_1 = require("./productView");
+var shoppingCartView_1 = require("./shoppingCartView");
+var priceView_1 = require("./priceView");
+var removalView_1 = require("./removalView");
 // Hey look. It's a global variable. This is totally cool, right?
-var shopping_cart = [];
-var quantity_cart = [];
+//let shopping_cart: Product[] = [];
+//let quantity_cart: number[] = [];
+var shapeMod = new ShapeModel_1.ShapeModel;
 /**
  * Function to run the UI
  */
@@ -15,7 +21,7 @@ function start() {
     showMainMenu();
 }
 exports.start = start;
-/**
+/** UNEDITED/ORIGINAL FUNCTION
  * The main menu. Will show until the user exits
  */
 function showMainMenu() {
@@ -43,22 +49,30 @@ function showMainMenu() {
         console.log(''); //extra empty line for revisiting
     }
 }
+//UNCHANGED FUNCTION
 function addItemToCart() {
     letUserSelectItem();
     letUserSelectQuantity();
 }
 function letUserSelectItem() {
-    console.log("Here you can select your shape. Pick an option:\n  1. Buy a Triangle!\n  2. Buy a Square!\n  3. Buy a Pentagon!\n  4. Go back. Don't buy anything.");
+    var product = new productView_1.ProductView();
+    console.log(product.getView());
+    /*console.log(`Here you can select your shape. Pick an option:
+    
+  1. Buy a Triangle!
+  2. Buy a Square!
+  3. Buy a Pentagon!
+  4. Go back. Don't buy anything.`);*/
     var response = readlineSync.question('> ');
     switch (response) { //handle each response
         case '1':
-            shopping_cart.push(new products_1.Product("Triangle", 3.5, "It's got three sides!"));
+            shapeMod.addProduct(new products_1.Product("Triangle", 3.5, "It's got three sides!"));
             break;
         case '2':
-            shopping_cart.push(new products_1.Product("Square", 4.5, "It's got four sides!"));
+            shapeMod.addProduct(new products_1.Product("Square", 4.5, "It's got four sides!"));
             break;
         case '3':
-            shopping_cart.push(new products_1.Product("Pentagon", 5.5, "It's got five sides!"));
+            shapeMod.addProduct(new products_1.Product("Pentagon", 5.5, "It's got five sides!"));
             break;
         default: console.log('Invalid option!');
     }
@@ -67,34 +81,30 @@ function letUserSelectItem() {
 function letUserSelectQuantity() {
     console.log("How many of this shape would you like to purchase?\n  ");
     var response = readlineSync.question('> ');
-    quantity_cart.push(parseInt(response));
+    shapeMod.setQuantity((parseInt(response)));
     console.log(''); //extra empty line for revisiting
 }
 function removeItemFromCart() {
     console.log("Select an item to be removed from the cart.\n  ");
-    for (var i = 0; i < shopping_cart.length; i++) {
-        console.log("");
-        console.log(i + ": " + shopping_cart[i].getName());
-    }
+    viewRemovedItems();
+    /*for (let i = 0; i < shopping_cart.length; i++) {
+        console.log(i+": "+shopping_cart[i].getName());
+    }*/
     var response = readlineSync.question('> ');
     var toRemove = parseInt(response);
-    shopping_cart.splice(toRemove, 1);
-    quantity_cart.splice(toRemove, 1);
+    shapeMod.removeProduct(toRemove);
+    //quantity_cart.splice(toRemove, 1);
     console.log(''); //extra empty line for revisiting
 }
+function viewRemovedItems() {
+    var itemsInCart = new removalView_1.RemovalView(shapeMod);
+    console.log(itemsInCart.getView().toString());
+}
 function viewItemsInCart() {
-    for (var i = 0; i < shopping_cart.length; i++) {
-        console.log("");
-        console.log("       Name: " + shopping_cart[i].getName());
-        console.log("      Price: " + shopping_cart[i].getPrice());
-        console.log("Description: " + shopping_cart[i].getDescription());
-        console.log("   Quantity: " + quantity_cart[i]);
-    }
+    var itemsInCart = new shoppingCartView_1.ShoppingCartView(shapeMod);
+    console.log(itemsInCart.getView().toString());
 }
 function viewCartTotal() {
-    var total = 0;
-    for (var i = 0; i < shopping_cart.length; i++) {
-        total += shopping_cart[i].getPrice() * quantity_cart[i];
-    }
-    console.log("Shopping Cart Total: " + total);
+    var itemsInCart = new priceView_1.PriceView(shapeMod);
+    console.log(itemsInCart.getView());
 }
